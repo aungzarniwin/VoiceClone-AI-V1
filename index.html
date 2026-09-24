@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VoiceClone AI</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, "Noto Sans Myanmar", sans-serif;
+  background: #0f172a;
+  color: white;
+}
+
+.app {
+  max-width: 600px;
+  margin: auto;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.header {
+  text-align: center;
+  padding: 25px 10px;
+}
+
+.logo {
+  width: 75px;
+  height: 75px;
+  margin: auto;
+  border-radius: 50%;
+  background: linear-gradient(135deg,#7c3aed,#06b6d4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 35px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+
+h1 {
+  margin: 15px 0 5px;
+  font-size: 28px;
+}
+
+.subtitle {
+  color: #94a3b8;
+}
+
+.card {
+  background: #1e293b;
+  border-radius: 20px;
+  padding: 20px;
+  margin-top: 18px;
+  box-shadow: 0 10px 25px rgba(0,0,0,.2);
+}
+
+.card h2 {
+  margin-top: 0;
+  font-size: 20px;
+}
+
+.record-box {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.record-btn {
+  width: 90px;
+  height: 90px;
+  border: none;
+  border-radius: 50%;
+  background: #ef4444;
+  color: white;
+  font-size: 35px;
+  cursor: pointer;
+  box-shadow: 0 8px 25px rgba(239,68,68,.35);
+}
+
+.record-btn.recording {
+  animation: pulse 1s infinite;
+  background: #dc2626;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+.status {
+  margin-top: 15px;
+  color: #94a3b8;
+}
+
+input[type="file"] {
+  width: 100%;
+  padding: 14px;
+  background: #0f172a;
+  color: white;
+  border-radius: 12px;
+  border: 1px solid #334155;
+}
+
+textarea {
+  width: 100%;
+  min-height: 140px;
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid #334155;
+  background: #0f172a;
+  color: white;
+  resize: vertical;
+  font-size: 16px;
+}
+
+button.action {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  padding: 15px;
+  margin-top: 12px;
+  background: linear-gradient(135deg,#7c3aed,#06b6d4);
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button.action:active {
+  transform: scale(.98);
+}
+
+.audio-player {
+  width: 100%;
+  margin-top: 15px;
+}
+
+.hidden {
+  display: none;
+}
+
+.voice-status {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  background: #0f172a;
+  color: #cbd5e1;
+  font-size: 14px;
+}
+
+.footer {
+  text-align: center;
+  padding: 30px 10px;
+  color: #64748b;
+  font-size: 13px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <div class="header">
+    <div class="logo">🎙️</div>
+    <h1>VoiceClone AI</h1>
+    <div class="subtitle">
+      Voice Clone & Speech to Text
+    </div>
+  </div>
+
+  <!-- RECORD -->
+  <div class="card">
+
+    <h2>🎙️ Record Your Voice</h2>
+
+    <div class="record-box">
+
+      <button id="recordBtn" class="record-btn">
+        🎤
+      </button>
+
+      <div id="recordStatus" class="status">
+        Record ကိုနှိပ်ပြီး အသံစတင်သွင်းပါ
+      </div>
+
+      <audio id="recordedAudio"
+             class="audio-player hidden"
+             controls>
+      </audio>
+
+    </div>
+
+  </div>
+
+
+  <!-- UPLOAD -->
+  <div class="card">
+
+    <h2>📁 Upload Voice</h2>
+
+    <input
+      id="audioFile"
+      type="file"
+      accept="audio/*"
+    >
+
+    <div id="fileStatus"
+         class="voice-status">
+      အသံဖိုင်ရွေးပါ
+    </div>
+
+    <audio
+      id="uploadedAudio"
+      class="audio-player hidden"
+      controls>
+    </audio>
+
+  </div>
+
+
+  <!-- SPEECH TO TEXT -->
+  <div class="card">
+
+    <h2>📝 Speech → Text</h2>
+
+    <button
+      id="speechBtn"
+      class="action">
+      🎤 Start Speech Recognition
+    </button>
+
+    <textarea
+      id="textOutput"
+      placeholder="သင့်အသံကို စာသားအဖြစ် ဒီနေရာမှာ ပြပါမယ်...">
+    </textarea>
+
+    <button
+      id="copyBtn"
+      class="action">
+      📋 Copy Text
+    </button>
+
+  </div>
+
+
+  <!-- VOICE CLONE -->
+  <div class="card">
+
+    <h2>🧬 Voice Clone</h2>
+
+    <div class="voice-status">
+      Voice Clone Engine မချိတ်ရသေးပါ။
+      နောက် Version မှာ AI Voice Clone API ကို ချိတ်ပေးမယ်။
+    </div>
+
+    <button
+      id="cloneBtn"
+      class="action">
+      🧬 Create Voice Clone
+    </button>
+
+  </div>
+
+
+  <!-- TEXT TO SPEECH -->
+  <div class="card">
+
+    <h2>🔊 Text → Voice</h2>
+
+    <textarea
+      id="ttsText"
+      placeholder="အသံထွက်စေချင်တဲ့စာကို ရေးပါ...">
+    </textarea>
+
+    <button
+      id="ttsBtn"
+      class="action">
+      🔊 Generate Voice
+    </button>
+
+    <audio
+      id="ttsAudio"
+      class="audio-player hidden"
+      controls>
+    </audio>
+
+  </div>
+
+
+  <div class="footer">
+    VoiceClone AI © 2026
+  </div>
+
+</div>
+
+
+<script>
+
+let mediaRecorder;
+let audioChunks = [];
+let isRecording = false;
+
+
+/* =========================
+   RECORD VOICE
+========================= */
+
+const recordBtn =
+  document.getElementById("recordBtn");
+
+const recordStatus =
+  document.getElementById("recordStatus");
+
+const recordedAudio =
+  document.getElementById("recordedAudio");
+
+
+recordBtn.addEventListener("click", async () => {
+
+  if (!isRecording) {
+
+    try {
+
+      const stream =
+        await navigator.mediaDevices
+        .getUserMedia({ audio: true });
+
+      audioChunks = [];
+
+      mediaRecorder =
+        new MediaRecorder(stream);
+
+      mediaRecorder.ondataavailable =
+        event => {
+
+          if (event.data.size > 0) {
+            audioChunks.push(event.data);
+          }
+
+        };
+
+      mediaRecorder.onstop = () => {
+
+        const audioBlob =
+          new Blob(
+            audioChunks,
+            { type: "audio/webm" }
+          );
+
+        const audioURL =
+          URL.createObjectURL(audioBlob);
+
+        recordedAudio.src = audioURL;
+        recordedAudio.classList.remove("hidden");
+
+        recordStatus.innerText =
+          "အသံသွင်းပြီးပါပြီ ✅";
+
+        stream.getTracks().forEach(
+          track => track.stop()
+        );
+
+      };
+
+      mediaRecorder.start();
+
+      isRecording = true;
+
+      recordBtn.classList.add("recording");
+
+      recordBtn.innerText = "⏹️";
+
+      recordStatus.innerText =
+        "အသံသွင်းနေပါတယ်...";
+
+    } catch (error) {
+
+      alert(
+        "Microphone permission ပေးရန်လိုအပ်ပါတယ်။"
+      );
+
+    }
+
+  } else {
+
+    mediaRecorder.stop();
+
+    isRecording = false;
+
+    recordBtn.classList.remove(
+      "recording"
+    );
+
+    recordBtn.innerText = "🎤";
+
+  }
+
+});
+
+
+/* =========================
+   AUDIO UPLOAD
+========================= */
+
+const audioFile =
+  document.getElementById("audioFile");
+
+const uploadedAudio =
+  document.getElementById("uploadedAudio");
+
+const fileStatus =
+  document.getElementById("fileStatus");
+
+
+audioFile.addEventListener("change", () => {
+
+  const file = audioFile.files[0];
+
+  if (!file) return;
+
+  const url =
+    URL.createObjectURL(file);
+
+  uploadedAudio.src = url;
+
+  uploadedAudio.classList.remove(
+    "hidden"
+  );
+
+  fileStatus.innerText =
+    "ရွေးထားသောဖိုင်: " + file.name;
+
+});
+
+
+/* =========================
+   SPEECH RECOGNITION
+========================= */
+
+const speechBtn =
+  document.getElementById("speechBtn");
+
+const textOutput =
+  document.getElementById("textOutput");
+
+
+let recognition;
+
+if (
+  "webkitSpeechRecognition"
+  in window
+) {
+
+  recognition =
+    new webkitSpeechRecognition();
+
+  recognition.lang = "my-MM";
+
+  recognition.continuous = true;
+
+  recognition.interimResults = true;
+
+  recognition.onstart = () => {
+
+    speechBtn.innerText =
+      "🔴 Listening...";
+
+  };
+
+  recognition.onresult =
+    event => {
+
+      let text = "";
+
+      for (
+        let i = event.resultIndex;
+        i < event.results.length;
+        i++
+      ) {
+
+        text +=
+          event.results[i][0].transcript;
+
+      }
+
+      textOutput.value = text;
+
+    };
+
+  recognition.onend = () => {
+
+    speechBtn.innerText =
+      "🎤 Start Speech Recognition";
+
+  };
+
+} else {
+
+  speechBtn.disabled = true;
+
+  speechBtn.innerText =
+    "Browser မှာ Speech Recognition မထောက်ပံ့ပါ";
+
+}
+
+
+speechBtn.addEventListener(
+  "click",
+  () => {
+
+    if (recognition) {
+
+      try {
+        recognition.start();
+      } catch (error) {}
+
+    }
+
+  }
+);
+
+
+/* =========================
+   COPY TEXT
+========================= */
+
+document
+.getElementById("copyBtn")
+.addEventListener("click", async () => {
+
+  const text =
+    textOutput.value;
+
+  if (!text) {
+
+    alert("Copy လုပ်စရာစာမရှိသေးပါ");
+
+    return;
+
+  }
+
+  await navigator.clipboard.writeText(text);
+
+  alert("စာသားကို Copy လုပ်ပြီးပါပြီ ✅");
+
+});
+
+
+/* =========================
+   VOICE CLONE
+========================= */
+
+document
+.getElementById("cloneBtn")
+.addEventListener("click", () => {
+
+  if (!recordedAudio.src &&
+      !audioFile.files.length) {
+
+    alert(
+      "အရင်ဆုံး သင့်အသံကို Record သို့မဟုတ် Upload လုပ်ပါ။"
+    );
+
+    return;
+
+  }
+
+  alert(
+    "Voice Clone Engine ကို နောက်အဆင့်မှာ ချိတ်ပေးမယ်။"
+  );
+
+});
+
+
+/* =========================
+   TEXT TO SPEECH
+========================= */
+
+const ttsBtn =
+  document.getElementById("ttsBtn");
+
+const ttsText =
+  document.getElementById("ttsText");
+
+const ttsAudio =
+  document.getElementById("ttsAudio");
+
+
+ttsBtn.addEventListener("click", () => {
+
+  const text =
+    ttsText.value.trim();
+
+  if (!text) {
+
+    alert(
+      "အသံထွက်စေချင်တဲ့စာကို ရေးပါ။"
+    );
+
+    return;
+
+  }
+
+  if (!("speechSynthesis" in window)) {
+
+    alert(
+      "ဒီ Browser မှာ Text-to-Speech မရပါ။"
+    );
+
+    return;
+
+  }
+
+  const utterance =
+    new SpeechSynthesisUtterance(text);
+
+  utterance.lang = "my-MM";
+
+  utterance.rate = 0.9;
+
+  utterance.pitch = 1;
+
+  speechSynthesis.cancel();
+
+  speechSynthesis.speak(
+    utterance
+  );
+
+});
+
+</script>
+
+</body>
+</html>
